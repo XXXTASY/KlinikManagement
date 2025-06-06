@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 03, 2025 at 04:58 AM
+-- Generation Time: Jun 06, 2025 at 06:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -82,6 +82,7 @@ CREATE TABLE `pasien` (
   `id_pasien` varchar(20) NOT NULL,
   `nama` varchar(100) NOT NULL,
   `tanggal_lahir` date NOT NULL,
+  `jenis_kelamin` enum('Laki-laki','Perempuan') NOT NULL,
   `alamat` varchar(255) NOT NULL,
   `telepon` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -90,9 +91,10 @@ CREATE TABLE `pasien` (
 -- Dumping data for table `pasien`
 --
 
-INSERT INTO `pasien` (`id_pasien`, `nama`, `tanggal_lahir`, `alamat`, `telepon`) VALUES
-('P001', 'Rasyid', '1945-08-17', 'Jl. Babarsari No.2', '081111111111'),
-('P002', 'Levi', '1950-06-30', 'Jl. In Aja Dulu', '088888888888');
+INSERT INTO `pasien` (`id_pasien`, `nama`, `tanggal_lahir`, `jenis_kelamin`, `alamat`, `telepon`) VALUES
+('P001', 'Rasyid', '1945-08-17', 'Laki-laki', 'Jl. Babarsari No.2', '081111111111'),
+('P002', 'Levi', '1950-06-30', 'Laki-laki', 'Jl. In Aja Dulu', '088888888888'),
+('P003', 'Amanda', '2005-05-04', 'Perempuan', 'Jl. Jalan Sendirian', '081234567890');
 
 -- --------------------------------------------------------
 
