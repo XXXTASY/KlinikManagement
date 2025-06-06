@@ -214,7 +214,7 @@ public class DokterView extends JDialog {
                 return null;
             }
             if (jamMulai.isAfter(jamSelesai)) {
-                showMessage("Jam mulai praktik tidak boleh setelah jam selesai praktik.", "Input Error", JOptionPane.WARNING_MESSAGE);
+                showMessage("Jam MULAI praktik TIDAK BOLEH SETELAH jam SELESAI praktik dan/atau jam SELESAI praktik TIDAK BOLEH SEBELUM jam MULAI praktik", "Input Error", JOptionPane.WARNING_MESSAGE);
                 return null;
             }
             return new Dokter(id, nama, spesialisasi, telepon, jamMulai, jamSelesai);
