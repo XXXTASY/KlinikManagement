@@ -12,6 +12,8 @@ import org.jdatepicker.impl.UtilDateModel;
 import javax.swing.*;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
@@ -52,8 +54,9 @@ public class PasienView extends JDialog {
         JPanel topContainerPanel = new JPanel(new BorderLayout());
 
         JPanel inputPanel = new JPanel(new GridBagLayout());
-        inputPanel.setBorder(BorderFactory.createTitledBorder("Form Data Pasien"));
-        inputPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        Border titledBorder = BorderFactory.createTitledBorder("Form Data Pasien");
+        Border emptyBorder = new EmptyBorder(10, 10, 10, 10);
+        inputPanel.setBorder(BorderFactory.createCompoundBorder(titledBorder, emptyBorder));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(5, 5, 5, 5);
