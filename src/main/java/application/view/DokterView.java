@@ -7,7 +7,6 @@ package application.view;
 import application.model.Dokter;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -15,8 +14,9 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.List;
+
+import com.github.lgooddatepicker.components.TimePicker;
+import com.github.lgooddatepicker.components.TimePickerSettings;
 /*
  *
  * @author XXXTASY
@@ -28,8 +28,6 @@ public class DokterView extends JDialog {
     private JTextField namaField;
     private JTextField spesialisasiField;
     private JTextField teleponField;
-    private JTextField jamMulaiField;
-    private JTextField jamSelesaiField;
     private JButton addButton;
     private JButton updateButton;
     private JButton deleteButton;
@@ -38,6 +36,8 @@ public class DokterView extends JDialog {
     private JTextField searchField;
     private JButton searchButton;
     private JButton resetSearchButton;
+    private TimePicker jamMulaiPicker;
+    private TimePicker jamSelesaiPicker;
 
     public DokterView(JFrame parentFrame) {
         super(parentFrame, "Manajemen Data Dokter", true);
@@ -75,12 +75,20 @@ public class DokterView extends JDialog {
         gbc.gridx = 1; teleponField = new JTextField(20); inputPanel.add(teleponField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Jam Mulai (HH:MM):"), gbc);
-        gbc.gridx = 1; jamMulaiField = new JTextField(10); inputPanel.add(jamMulaiField, gbc);
+        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Jam Mulai:"), gbc);
+        TimePickerSettings timeSettingsMulai = new TimePickerSettings();
+        timeSettingsMulai.setFormatForDisplayTime("HH:mm");
+        timeSettingsMulai.setFormatForMenuTimes("HH:mm");
+        jamMulaiPicker = new TimePicker(timeSettingsMulai);
+        gbc.gridx = 1; inputPanel.add(jamMulaiPicker, gbc);
         row++;
-
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Jam Selesai (HH:MM):"), gbc);
-        gbc.gridx = 1; jamSelesaiField = new JTextField(10); inputPanel.add(jamSelesaiField, gbc);
+        
+        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Jam Selesai:"), gbc);
+        TimePickerSettings timeSettingsSelesai = new TimePickerSettings();
+        timeSettingsSelesai.setFormatForDisplayTime("HH:mm");
+        timeSettingsSelesai.setFormatForMenuTimes("HH:mm");
+        jamSelesaiPicker = new TimePicker(timeSettingsSelesai);
+        gbc.gridx = 1; inputPanel.add(jamSelesaiPicker, gbc);
         row++;
 
         JPanel crudButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -139,8 +147,10 @@ public class DokterView extends JDialog {
                         namaField.setText(tableModel.getValueAt(selectedRow, 1).toString());
                         spesialisasiField.setText(tableModel.getValueAt(selectedRow, 2).toString());
                         teleponField.setText(tableModel.getValueAt(selectedRow, 3).toString());
-                        jamMulaiField.setText(tableModel.getValueAt(selectedRow, 4).toString());
-                        jamSelesaiField.setText(tableModel.getValueAt(selectedRow, 5).toString());
+                        String jamMulaiStr = tableModel.getValueAt(selectedRow, 4).toString();
+                        String jamSelesaiStr = tableModel.getValueAt(selectedRow, 5).toString();
+                        jamMulaiPicker.setTime(LocalTime.parse(jamMulaiStr, DateTimeFormatter.ofPattern("HH:mm")));
+                        jamSelesaiPicker.setTime(LocalTime.parse(jamSelesaiStr, DateTimeFormatter.ofPattern("HH:mm")));
                         idDokterField.setEditable(false);
                         System.out.println("Form fields updated and ID locked.");
                     } catch (Exception ex) {
@@ -161,8 +171,6 @@ public class DokterView extends JDialog {
     public String getNamaField() { return namaField.getText(); }
     public String getSpesialisasiField() { return spesialisasiField.getText(); }
     public String getTeleponField() { return teleponField.getText(); }
-    public String getJamMulaiField() { return jamMulaiField.getText(); }
-    public String getJamSelesaiField() { return jamSelesaiField.getText(); }
 
     public void addAddButtonListener(ActionListener listener) { addButton.addActionListener(listener); }
     public void addUpdateButtonListener(ActionListener listener) { updateButton.addActionListener(listener); }
@@ -194,8 +202,8 @@ public class DokterView extends JDialog {
         namaField.setText("");
         spesialisasiField.setText("");
         teleponField.setText("");
-        jamMulaiField.setText("");
-        jamSelesaiField.setText("");
+        jamMulaiPicker.setTime(null);
+        jamSelesaiPicker.setTime(null);
         idDokterField.setEditable(true);
         dokterTable.clearSelection();
     }
@@ -206,10 +214,10 @@ public class DokterView extends JDialog {
             String nama = namaField.getText().trim();
             String spesialisasi = spesialisasiField.getText().trim();
             String telepon = teleponField.getText().trim();
-            LocalTime jamMulai = LocalTime.parse(jamMulaiField.getText().trim(), DateTimeFormatter.ofPattern("HH:mm"));
-            LocalTime jamSelesai = LocalTime.parse(jamSelesaiField.getText().trim(), DateTimeFormatter.ofPattern("HH:mm"));
+            LocalTime jamMulai = jamMulaiPicker.getTime();
+            LocalTime jamSelesai = jamSelesaiPicker.getTime();
 
-            if (id.isEmpty() || nama.isEmpty() || spesialisasi.isEmpty() || telepon.isEmpty() || jamMulaiField.getText().isEmpty() || jamSelesaiField.getText().isEmpty()) {
+            if (id.isEmpty() || nama.isEmpty() || spesialisasi.isEmpty() || telepon.isEmpty() || jamMulai == null || jamSelesai == null) {
                 showMessage("Semua field harus diisi.", "Input Error", JOptionPane.WARNING_MESSAGE);
                 return null;
             }
@@ -218,9 +226,6 @@ public class DokterView extends JDialog {
                 return null;
             }
             return new Dokter(id, nama, spesialisasi, telepon, jamMulai, jamSelesai);
-        } catch (DateTimeParseException e) {
-            showMessage("Format waktu harus HH:MM (contoh: 08:00).", "Format Waktu Salah", JOptionPane.ERROR_MESSAGE);
-            return null;
         } catch (Exception e) {
             showMessage("Terjadi kesalahan pada input data: " + e.getMessage(), "Error Validasi", JOptionPane.ERROR_MESSAGE);
             return null;
