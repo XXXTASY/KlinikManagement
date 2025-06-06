@@ -41,6 +41,10 @@ public class ObatView extends JDialog {
     private JButton clearButton;
     private JButton backButton;
     
+    private JTextField searchField;
+    private JButton searchButton;
+    private JButton resetSearchButton;
+    
     private Obat selectedObat = null;
 
 
@@ -110,10 +114,25 @@ public class ObatView extends JDialog {
         buttonPanel.add(clearButton);
         buttonPanel.add(backButton);
         
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(formPanel, BorderLayout.CENTER);
-        topPanel.add(buttonPanel, BorderLayout.SOUTH);
-        add(topPanel, BorderLayout.NORTH);
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        searchPanel.setBorder(BorderFactory.createTitledBorder("Pencarian Obat"));
+        searchPanel.add(new JLabel("Cari (Kode/Nama/Produsen):"));
+        searchField = new JTextField(25);
+        searchPanel.add(searchField);
+        searchButton = new JButton("Cari");
+        searchPanel.add(searchButton);
+        resetSearchButton = new JButton("Reset");
+        searchPanel.add(resetSearchButton);
+        
+        JPanel topContainerPanel = new JPanel(new BorderLayout());
+        JPanel formAndCrudPanel = new JPanel(new BorderLayout());
+        formAndCrudPanel.add(formPanel, BorderLayout.CENTER);
+        formAndCrudPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        topContainerPanel.add(formAndCrudPanel, BorderLayout.CENTER);
+        topContainerPanel.add(searchPanel, BorderLayout.SOUTH);
+        
+        add(topContainerPanel, BorderLayout.NORTH);
 
         String[] columnNames = {"Kode Obat", "Nama Obat", "Produsen", "Satuan", "Stok", "Harga Beli", "Harga Jual", "Tgl Kadaluarsa"};
         tableModel = new DefaultTableModel(columnNames, 0) {
@@ -190,6 +209,22 @@ public class ObatView extends JDialog {
     public void addDeleteButtonListener(ActionListener listener) { deleteButton.addActionListener(listener); }
     public void addClearButtonListener(ActionListener listener) { clearButton.addActionListener(listener); }
     public void addBackButtonListener(ActionListener listener) { backButton.addActionListener(listener); }
+    
+    public String getSearchKeyword() {
+        return searchField.getText().trim();
+    }
+    
+    public JTextField getSearchField() {
+        return searchField;
+    }
+
+    public void addSearchButtonListener(ActionListener listener) {
+        searchButton.addActionListener(listener);
+    }
+
+    public void addResetSearchButtonListener(ActionListener listener) {
+        resetSearchButton.addActionListener(listener);
+    }
 
     public void clearForm() {
         kodeObatField.setText("");

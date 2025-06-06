@@ -29,6 +29,7 @@ application\view\DokterView$1.class
 application\view\PasienView.class
 application\controller\DokterController$1.class
 application\controller\MainMenuController$2.class
+application\controller\ObatController$5.class
 application\view\ObatView.class
 application\controller\PasienController$10.class
 application\controller\ObatController$2.class

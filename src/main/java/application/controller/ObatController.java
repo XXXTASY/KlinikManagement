@@ -35,6 +35,8 @@ public class ObatController {
         view.addDeleteButtonListener(e -> handleDeleteObat());
         view.addClearButtonListener(e -> view.clearForm());
         view.addBackButtonListener(e -> view.dispose());
+        view.addSearchButtonListener(e -> handleSearchObat());
+        view.addResetSearchButtonListener(e -> handleResetSearchObat());
     }
 
     private void loadAndDisplayObat() {
@@ -56,6 +58,41 @@ public class ObatController {
                 }
             }
         }.execute();
+    }
+    
+    private void handleSearchObat() {
+        String keyword = view.getSearchKeyword();
+        if (keyword.isEmpty()) {
+            view.showMessage("Silakan masukkan kata kunci pencarian.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        new SwingWorker<List<Obat>, Void>() {
+            @Override
+            protected List<Obat> doInBackground() throws Exception {
+                return model.cariObat(keyword);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<Obat> searchResult = get();
+                    if (searchResult.isEmpty()) {
+                        view.showMessage("Data obat dengan kata kunci '" + keyword + "' tidak ditemukan.", "Hasil Pencarian", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    view.displayObatData(searchResult);
+                } catch (Exception e) {
+                    view.showMessage("Gagal melakukan pencarian obat: " + e.getMessage(), "Error Database", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                }
+            }
+        }.execute();
+    }
+    
+    private void handleResetSearchObat() {
+        view.getSearchField().setText("");
+        loadAndDisplayObat();
+        view.showMessage("Pencarian direset. Menampilkan semua data obat.", "Info", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void handleAddObat() {

@@ -101,7 +101,7 @@ public class KlinikData {
         String sql = "SELECT id_pasien, nama, tanggal_lahir, alamat, telepon FROM pasien " +
                      "WHERE id_pasien LIKE ? OR nama LIKE ?";
         try (Connection conn = Connector.openConnect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
             String searchPattern = "%" + keyword + "%";
             pstmt.setString(1, searchPattern);
             pstmt.setString(2, searchPattern);
@@ -124,7 +124,7 @@ public class KlinikData {
         }
         String sql = "INSERT INTO pasien (id_pasien, nama, tanggal_lahir, alamat, telepon) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = Connector.openConnect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, pasien.getIdPasien());
             pstmt.setString(2, pasien.getNama());
             pstmt.setDate(3, Date.valueOf(pasien.getTanggalLahir()));
@@ -149,7 +149,7 @@ public class KlinikData {
         }
         String sql = "UPDATE pasien SET id_pasien = ?, nama = ?, tanggal_lahir = ?, alamat = ?, telepon = ? WHERE id_pasien = ?";
         try (Connection conn = Connector.openConnect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, pasienBaru.getIdPasien());
             pstmt.setString(2, pasienBaru.getNama());
             pstmt.setDate(3, Date.valueOf(pasienBaru.getTanggalLahir()));
@@ -190,8 +190,8 @@ public class KlinikData {
         daftarDokter.clear();
         String sql = "SELECT id_dokter, nama, spesialisasi, telepon, jam_mulai_praktik, jam_selesai_praktik FROM dokter";
         try (Connection conn = Connector.openConnect();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+            Statement stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 String idDokter = rs.getString("id_dokter");
                 String nama = rs.getString("nama");
@@ -211,7 +211,7 @@ public class KlinikData {
         String sql = "SELECT id_dokter, nama, spesialisasi, telepon, jam_mulai_praktik, jam_selesai_praktik FROM dokter " +
                      "WHERE id_dokter LIKE ? OR nama LIKE ? OR spesialisasi LIKE ?";
         try (Connection conn = Connector.openConnect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
             String searchPattern = "%" + keyword + "%";
             pstmt.setString(1, searchPattern);
             pstmt.setString(2, searchPattern);
@@ -236,7 +236,7 @@ public class KlinikData {
         }
         String sql = "INSERT INTO dokter (id_dokter, nama, spesialisasi, telepon, jam_mulai_praktik, jam_selesai_praktik) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = Connector.openConnect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dokter.getIdDokter());
             pstmt.setString(2, dokter.getNama());
             pstmt.setString(3, dokter.getSpesialisasi());
@@ -262,7 +262,7 @@ public class KlinikData {
         }
         String sql = "UPDATE dokter SET id_dokter = ?, nama = ?, spesialisasi = ?, telepon = ?, jam_mulai_praktik = ?, jam_selesai_praktik = ? WHERE id_dokter = ?";
         try (Connection conn = Connector.openConnect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dokterBaru.getIdDokter());
             pstmt.setString(2, dokterBaru.getNama());
             pstmt.setString(3, dokterBaru.getSpesialisasi());
@@ -282,7 +282,7 @@ public class KlinikData {
     public boolean hapusDokter(Dokter dokter) throws SQLException {
         String sql = "DELETE FROM dokter WHERE id_dokter = ?";
         try (Connection conn = Connector.openConnect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dokter.getIdDokter());
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
@@ -321,6 +321,38 @@ public class KlinikData {
         } catch (SQLException e) {
             System.err.println("Error loading obat data from database: " + e.getMessage());
         }
+    }
+    
+    public List<Obat> cariObat(String keyword) throws SQLException {
+        List<Obat> hasilPencarian = new ArrayList<>();
+        String sql = "SELECT * FROM obat WHERE kode_obat LIKE ? OR nama_obat LIKE ? OR produsen LIKE ?";
+        
+        try (Connection conn = Connector.openConnect();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            String searchKeyword = "%" + keyword + "%";
+            pstmt.setString(1, searchKeyword);
+            pstmt.setString(2, searchKeyword);
+            pstmt.setString(3, searchKeyword);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String kodeObat = rs.getString("kode_obat");
+                    String namaObat = rs.getString("nama_obat");
+                    String produsen = rs.getString("produsen");
+                    String satuan = rs.getString("satuan");
+                    int stok = rs.getInt("stok");
+                    double hargaBeli = rs.getDouble("harga_beli");
+                    double hargaJual = rs.getDouble("harga_jual");
+                    LocalDate tanggalKadaluarsa = rs.getDate("tanggal_kadaluarsa") != null ? rs.getDate("tanggal_kadaluarsa").toLocalDate() : null;
+                    hasilPencarian.add(new Obat(kodeObat, namaObat, produsen, satuan, stok, hargaBeli, hargaJual, tanggalKadaluarsa));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error saat mencari obat: " + e.getMessage());
+            throw e;
+        }
+        return hasilPencarian;
     }
 
     public boolean tambahObat(Obat obat) throws SQLException {
