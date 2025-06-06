@@ -52,7 +52,7 @@ public class MainMenuView extends JFrame {
         
         logoutButton = new JButton("Logout");
         logoutButton.setPreferredSize(new Dimension(200, 40));
-        gbc.insets = new Insets(25, 0, 0, 0); // Beri sedikit jarak dari tombol sebelumnya
+        gbc.insets = new Insets(25, 0, 0, 0);
         panel.add(logoutButton, gbc);
 
         add(panel);

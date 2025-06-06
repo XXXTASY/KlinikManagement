@@ -10,7 +10,6 @@ import application.view.RegisterView;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 /**
  *
  * @author XXXTASY
