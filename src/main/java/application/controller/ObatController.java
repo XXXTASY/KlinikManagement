@@ -9,8 +9,6 @@ import application.model.Obat;
 import application.view.ObatView;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
