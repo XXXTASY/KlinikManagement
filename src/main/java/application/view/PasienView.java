@@ -22,16 +22,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
+
 /*
  *
  * @author XXXTASY
  */
 public class PasienView extends JDialog {
+
     private JTable pasienTable;
     private DefaultTableModel tableModel;
     private JTextField idPasienField;
     private JTextField namaField;
     private JDatePickerImpl tanggalLahirPicker;
+    private JRadioButton lakiLakiRadio;
+    private JRadioButton perempuanRadio;
+    private ButtonGroup jenisKelaminGroup;
     private JTextField alamatField;
     private JTextField teleponField;
     private JButton addButton;
@@ -63,15 +68,25 @@ public class PasienView extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         int row = 0;
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("ID Pasien:"), gbc);
-        gbc.gridx = 1; idPasienField = new JTextField(20); inputPanel.add(idPasienField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("ID Pasien:"), gbc);
+        gbc.gridx = 1;
+        idPasienField = new JTextField(20);
+        inputPanel.add(idPasienField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Nama:"), gbc);
-        gbc.gridx = 1; namaField = new JTextField(20); inputPanel.add(namaField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("Nama:"), gbc);
+        gbc.gridx = 1;
+        namaField = new JTextField(20);
+        inputPanel.add(namaField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Tanggal Lahir:"), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("Tanggal Lahir:"), gbc);
         gbc.gridx = 1;
         UtilDateModel model = new UtilDateModel();
         Properties p = new Properties();
@@ -83,12 +98,41 @@ public class PasienView extends JDialog {
         inputPanel.add(tanggalLahirPicker, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Alamat:"), gbc);
-        gbc.gridx = 1; alamatField = new JTextField(20); inputPanel.add(alamatField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("Jenis Kelamin:"), gbc);
+
+        lakiLakiRadio = new JRadioButton("Laki-laki");
+        lakiLakiRadio.setActionCommand("Laki-laki");
+        perempuanRadio = new JRadioButton("Perempuan");
+        perempuanRadio.setActionCommand("Perempuan");
+
+        jenisKelaminGroup = new ButtonGroup();
+        jenisKelaminGroup.add(lakiLakiRadio);
+        jenisKelaminGroup.add(perempuanRadio);
+
+        JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        radioPanel.add(lakiLakiRadio);
+        radioPanel.add(perempuanRadio);
+
+        gbc.gridx = 1;
+        inputPanel.add(radioPanel, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Telepon:"), gbc);
-        gbc.gridx = 1; teleponField = new JTextField(20); inputPanel.add(teleponField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("Alamat:"), gbc);
+        gbc.gridx = 1;
+        alamatField = new JTextField(20);
+        inputPanel.add(alamatField, gbc);
+        row++;
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("Telepon:"), gbc);
+        gbc.gridx = 1;
+        teleponField = new JTextField(20);
+        inputPanel.add(teleponField, gbc);
         row++;
 
         JPanel crudButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -122,8 +166,7 @@ public class PasienView extends JDialog {
         topContainerPanel.add(searchPanel, BorderLayout.SOUTH);
         add(topContainerPanel, BorderLayout.NORTH);
 
-
-        String[] columnNames = {"ID Pasien", "Nama", "Tanggal Lahir", "Alamat", "Telepon"};
+        String[] columnNames = {"ID Pasien", "Nama", "Tanggal Lahir", "Jenis Kelamin", "Alamat", "Telepon"};
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -161,8 +204,15 @@ public class PasienView extends JDialog {
                             tanggalLahirPicker.getJFormattedTextField().setText("");
                         }
 
-                        alamatField.setText(tableModel.getValueAt(selectedRow, 3).toString());
-                        teleponField.setText(tableModel.getValueAt(selectedRow, 4).toString());
+                        String jenisKelaminValue = tableModel.getValueAt(selectedRow, 3).toString();
+                        if (jenisKelaminValue.equals("Laki-laki")) {
+                            lakiLakiRadio.setSelected(true);
+                        } else if (jenisKelaminValue.equals("Perempuan")) {
+                            perempuanRadio.setSelected(true);
+                        }
+
+                        alamatField.setText(tableModel.getValueAt(selectedRow, 4).toString());
+                        teleponField.setText(tableModel.getValueAt(selectedRow, 5).toString());
 
                         idPasienField.setEditable(false);
                         System.out.println("Form fields updated and ID locked.");
@@ -180,29 +230,62 @@ public class PasienView extends JDialog {
         System.out.println("PasienView UI initialized and listener added.");
     }
 
-    public String getIdPasienField() { return idPasienField.getText(); }
-    public String getNamaField() { return namaField.getText(); }
+    public String getIdPasienField() {
+        return idPasienField.getText();
+    }
+
+    public String getNamaField() {
+        return namaField.getText();
+    }
+
     public LocalDate getTanggalLahirPickerValue() {
         if (tanggalLahirPicker.getModel().isSelected()) {
             return LocalDate.of(tanggalLahirPicker.getModel().getYear(),
-                                tanggalLahirPicker.getModel().getMonth() + 1,
-                                tanggalLahirPicker.getModel().getDay());
+                    tanggalLahirPicker.getModel().getMonth() + 1,
+                    tanggalLahirPicker.getModel().getDay());
         }
         return null;
     }
-    public String getAlamatField() { return alamatField.getText(); }
-    public String getTeleponField() { return teleponField.getText(); }
 
-    public void addAddButtonListener(ActionListener listener) { addButton.addActionListener(listener); }
-    public void addUpdateButtonListener(ActionListener listener) { updateButton.addActionListener(listener); }
-    public void addDeleteButtonListener(ActionListener listener) { deleteButton.addActionListener(listener); }
-    public void addBackButtonListener(ActionListener listener) { backButton.addActionListener(listener); }
-    public void addClearButtonListener(ActionListener listener) { clearButton.addActionListener(listener); }
+    public String getJenisKelamin() {
+        if (jenisKelaminGroup.getSelection() != null) {
+            return jenisKelaminGroup.getSelection().getActionCommand();
+        }
+        return null;
+    }
+
+    public String getAlamatField() {
+        return alamatField.getText();
+    }
+
+    public String getTeleponField() {
+        return teleponField.getText();
+    }
+
+    public void addAddButtonListener(ActionListener listener) {
+        addButton.addActionListener(listener);
+    }
+
+    public void addUpdateButtonListener(ActionListener listener) {
+        updateButton.addActionListener(listener);
+    }
+
+    public void addDeleteButtonListener(ActionListener listener) {
+        deleteButton.addActionListener(listener);
+    }
+
+    public void addBackButtonListener(ActionListener listener) {
+        backButton.addActionListener(listener);
+    }
+
+    public void addClearButtonListener(ActionListener listener) {
+        clearButton.addActionListener(listener);
+    }
 
     public String getSearchKeyword() {
         return searchField.getText().trim();
     }
-    
+
     public JTextField getSearchField() {
         return searchField;
     }
@@ -215,13 +298,19 @@ public class PasienView extends JDialog {
         resetSearchButton.addActionListener(listener);
     }
 
-    public JTable getPasienTable() { return pasienTable; }
-    public DefaultTableModel getTableModel() { return tableModel; }
+    public JTable getPasienTable() {
+        return pasienTable;
+    }
+
+    public DefaultTableModel getTableModel() {
+        return tableModel;
+    }
 
     public void clearForm() {
         idPasienField.setText("");
         namaField.setText("");
         tanggalLahirPicker.getModel().setSelected(false);
+        jenisKelaminGroup.clearSelection();
         alamatField.setText("");
         teleponField.setText("");
         idPasienField.setEditable(true);
@@ -232,14 +321,15 @@ public class PasienView extends JDialog {
         String id = idPasienField.getText().trim();
         String nama = namaField.getText().trim();
         LocalDate tglLahir = getTanggalLahirPickerValue();
+        String jnsKelamin = getJenisKelamin();
         String alamat = alamatField.getText().trim();
         String telepon = teleponField.getText().trim();
 
-        if (id.isEmpty() || nama.isEmpty() || tglLahir == null || alamat.isEmpty() || telepon.isEmpty()) {
+        if (id.isEmpty() || nama.isEmpty() || tglLahir == null || jnsKelamin == null || alamat.isEmpty() || telepon.isEmpty()) {
             showMessage("Semua field harus diisi.", "Input Error", JOptionPane.WARNING_MESSAGE);
             return null;
         }
-        return new Pasien(id, nama, tglLahir, alamat, telepon);
+        return new Pasien(id, nama, tglLahir, jnsKelamin, alamat, telepon);
     }
 
     public void showMessage(String message, String title, int messageType) {
@@ -247,6 +337,7 @@ public class PasienView extends JDialog {
     }
 
     private class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+
         private String datePattern = "yyyy-MM-dd";
         private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(datePattern);
 

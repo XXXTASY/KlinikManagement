@@ -79,7 +79,7 @@ public class KlinikData {
 
     public void loadPasienFromDatabase() {
         daftarPasien.clear();
-        String sql = "SELECT id_pasien, nama, tanggal_lahir, alamat, telepon FROM pasien";
+        String sql = "SELECT id_pasien, nama, tanggal_lahir, jenis_kelamin, alamat, telepon FROM pasien";
         try (Connection conn = Connector.openConnect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
@@ -87,9 +87,10 @@ public class KlinikData {
                 String idPasien = rs.getString("id_pasien");
                 String nama = rs.getString("nama");
                 LocalDate tanggalLahir = rs.getDate("tanggal_lahir").toLocalDate();
+                String jeniskelamin = rs.getString("jenis_kelamin");
                 String alamat = rs.getString("alamat");
                 String telepon = rs.getString("telepon");
-                daftarPasien.add(new Pasien(idPasien, nama, tanggalLahir, alamat, telepon));
+                daftarPasien.add(new Pasien(idPasien, nama, tanggalLahir, jeniskelamin, alamat, telepon));
             }
         } catch (SQLException e) {
             System.err.println("Error loading pasien data from database: " + e.getMessage());
@@ -98,7 +99,7 @@ public class KlinikData {
 
     public List<Pasien> cariPasien(String keyword) throws SQLException {
         List<Pasien> hasilPencarian = new ArrayList<>();
-        String sql = "SELECT id_pasien, nama, tanggal_lahir, alamat, telepon FROM pasien " +
+        String sql = "SELECT id_pasien, nama, tanggal_lahir, jenis_kelamin, alamat, telepon FROM pasien " +
                      "WHERE id_pasien LIKE ? OR nama LIKE ?";
         try (Connection conn = Connector.openConnect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -110,9 +111,10 @@ public class KlinikData {
                 String idPasien = rs.getString("id_pasien");
                 String nama = rs.getString("nama");
                 LocalDate tanggalLahir = rs.getDate("tanggal_lahir").toLocalDate();
+                String jeniskelamin = rs.getString("jenis_kelamin");
                 String alamat = rs.getString("alamat");
                 String telepon = rs.getString("telepon");
-                hasilPencarian.add(new Pasien(idPasien, nama, tanggalLahir, alamat, telepon));
+                hasilPencarian.add(new Pasien(idPasien, nama, tanggalLahir, jeniskelamin, alamat, telepon));
             }
         }
         return hasilPencarian;
@@ -122,14 +124,15 @@ public class KlinikData {
         if (getPasienById(pasien.getIdPasien()).isPresent()) {
             return false;
         }
-        String sql = "INSERT INTO pasien (id_pasien, nama, tanggal_lahir, alamat, telepon) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO pasien (id_pasien, nama, tanggal_lahir, jenis_kelamin, alamat, telepon) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = Connector.openConnect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, pasien.getIdPasien());
             pstmt.setString(2, pasien.getNama());
             pstmt.setDate(3, Date.valueOf(pasien.getTanggalLahir()));
-            pstmt.setString(4, pasien.getAlamat());
-            pstmt.setString(5, pasien.getTelepon());
+            pstmt.setString(4, pasien.getJenisKelamin());
+            pstmt.setString(5, pasien.getAlamat());
+            pstmt.setString(6, pasien.getTelepon());
             pstmt.executeUpdate();
             loadPasienFromDatabase();
             return true;
@@ -147,15 +150,16 @@ public class KlinikData {
         if (!pasienLama.getIdPasien().equals(pasienBaru.getIdPasien()) && getPasienById(pasienBaru.getIdPasien()).isPresent()) {
             return false;
         }
-        String sql = "UPDATE pasien SET id_pasien = ?, nama = ?, tanggal_lahir = ?, alamat = ?, telepon = ? WHERE id_pasien = ?";
+        String sql = "UPDATE pasien SET id_pasien = ?, nama = ?, tanggal_lahir = ?, jenis_kelamin = ?, alamat = ?, telepon = ? WHERE id_pasien = ?";
         try (Connection conn = Connector.openConnect();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, pasienBaru.getIdPasien());
             pstmt.setString(2, pasienBaru.getNama());
             pstmt.setDate(3, Date.valueOf(pasienBaru.getTanggalLahir()));
-            pstmt.setString(4, pasienBaru.getAlamat());
-            pstmt.setString(5, pasienBaru.getTelepon());
-            pstmt.setString(6, pasienLama.getIdPasien());
+            pstmt.setString(4, pasienBaru.getJenisKelamin());
+            pstmt.setString(5, pasienBaru.getAlamat());
+            pstmt.setString(6, pasienBaru.getTelepon());
+            pstmt.setString(7, pasienLama.getIdPasien());
             pstmt.executeUpdate();
             loadPasienFromDatabase();
             return true;
@@ -358,7 +362,7 @@ public class KlinikData {
     public boolean tambahObat(Obat obat) throws SQLException {
         if (getObatByKode(obat.getKodeObat()).isPresent()) {
             System.err.println("Error: Kode Obat " + obat.getKodeObat() + " sudah ada.");
-            return false; // Kode obat sudah ada
+            return false;
         }
         String sql = "INSERT INTO obat (kode_obat, nama_obat, produsen, satuan, stok, harga_beli, harga_jual, tanggal_kadaluarsa) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = Connector.openConnect();
@@ -377,7 +381,7 @@ public class KlinikData {
             }
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
-                loadObatFromDatabase(); // Muat ulang semua data
+                loadObatFromDatabase();
                 return true;
             }
             return false;
@@ -392,7 +396,6 @@ public class KlinikData {
     }
 
     public boolean updateObat(Obat obatLama, Obat obatBaru) throws SQLException {
-        // Jika kode obat diubah dan kode baru sudah ada (dan bukan milik obat lama), tolak.
         if (!obatLama.getKodeObat().equalsIgnoreCase(obatBaru.getKodeObat()) && getObatByKode(obatBaru.getKodeObat()).isPresent()) {
              System.err.println("Error: Kode Obat baru " + obatBaru.getKodeObat() + " sudah digunakan oleh obat lain.");
              return false;
@@ -413,14 +416,14 @@ public class KlinikData {
             } else {
                 pstmt.setNull(8, java.sql.Types.DATE);
             }
-            pstmt.setString(9, obatLama.getKodeObat()); // WHERE clause menggunakan kode_obat lama
+            pstmt.setString(9, obatLama.getKodeObat());
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
                 loadObatFromDatabase();
                 return true;
             }
-            return false; // Bisa jadi obatLama.getKodeObat() tidak ditemukan
+            return false;
         } catch (SQLException e) {
             System.err.println("Error updating obat: " + e.getMessage());
             throw e;

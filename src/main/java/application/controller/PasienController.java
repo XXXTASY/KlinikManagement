@@ -111,6 +111,7 @@ public class PasienController {
                                 p.getIdPasien(),
                                 p.getNama(),
                                 p.getTanggalLahir().format(formatter),
+                                p.getJenisKelamin(),
                                 p.getAlamat(),
                                 p.getTelepon()
                             });
@@ -184,6 +185,7 @@ public class PasienController {
             selectedPasienOriginal.getIdPasien(),
             updatedPasienFromForm.getNama(),
             updatedPasienFromForm.getTanggalLahir(),
+            updatedPasienFromForm.getJenisKelamin(),
             updatedPasienFromForm.getAlamat(),
             updatedPasienFromForm.getTelepon()
         );
@@ -295,6 +297,7 @@ public class PasienController {
                             p.getIdPasien(),
                             p.getNama(),
                             p.getTanggalLahir().format(formatter),
+                            p.getJenisKelamin(),
                             p.getAlamat(),
                             p.getTelepon()
                         });
