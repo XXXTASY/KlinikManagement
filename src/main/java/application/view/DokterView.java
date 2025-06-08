@@ -32,6 +32,7 @@ public class DokterView extends JDialog {
     private JButton updateButton;
     private JButton deleteButton;
     private JButton backButton;
+    private JButton exportButton;
     private JButton clearButton;
     private JTextField searchField;
     private JButton searchButton;
@@ -59,36 +60,58 @@ public class DokterView extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         int row = 0;
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("ID Dokter:"), gbc);
-        gbc.gridx = 1; idDokterField = new JTextField(20); inputPanel.add(idDokterField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("ID Dokter:"), gbc);
+        gbc.gridx = 1;
+        idDokterField = new JTextField(20);
+        inputPanel.add(idDokterField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Nama:"), gbc);
-        gbc.gridx = 1; namaField = new JTextField(20); inputPanel.add(namaField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("Nama:"), gbc);
+        gbc.gridx = 1;
+        namaField = new JTextField(20);
+        inputPanel.add(namaField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Spesialisasi:"), gbc);
-        gbc.gridx = 1; spesialisasiField = new JTextField(20); inputPanel.add(spesialisasiField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("Spesialisasi:"), gbc);
+        gbc.gridx = 1;
+        spesialisasiField = new JTextField(20);
+        inputPanel.add(spesialisasiField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Telepon:"), gbc);
-        gbc.gridx = 1; teleponField = new JTextField(20); inputPanel.add(teleponField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("Telepon:"), gbc);
+        gbc.gridx = 1;
+        teleponField = new JTextField(20);
+        inputPanel.add(teleponField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Jam Mulai:"), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("Jam Mulai:"), gbc);
         TimePickerSettings timeSettingsMulai = new TimePickerSettings();
         timeSettingsMulai.setFormatForDisplayTime("HH:mm");
         timeSettingsMulai.setFormatForMenuTimes("HH:mm");
         jamMulaiPicker = new TimePicker(timeSettingsMulai);
-        gbc.gridx = 1; inputPanel.add(jamMulaiPicker, gbc);
+        gbc.gridx = 1;
+        inputPanel.add(jamMulaiPicker, gbc);
         row++;
-        
-        gbc.gridx = 0; gbc.gridy = row; inputPanel.add(new JLabel("Jam Selesai:"), gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        inputPanel.add(new JLabel("Jam Selesai:"), gbc);
         TimePickerSettings timeSettingsSelesai = new TimePickerSettings();
         timeSettingsSelesai.setFormatForDisplayTime("HH:mm");
         timeSettingsSelesai.setFormatForMenuTimes("HH:mm");
         jamSelesaiPicker = new TimePicker(timeSettingsSelesai);
-        gbc.gridx = 1; inputPanel.add(jamSelesaiPicker, gbc);
+        gbc.gridx = 1;
+        inputPanel.add(jamSelesaiPicker, gbc);
         row++;
 
         JPanel crudButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -96,12 +119,14 @@ public class DokterView extends JDialog {
         updateButton = new JButton("Perbarui");
         deleteButton = new JButton("Hapus");
         clearButton = new JButton("Clear Form");
+        exportButton = new JButton("Ekspor ke CSV");
         backButton = new JButton("Kembali ke Menu Utama");
 
         crudButtonPanel.add(addButton);
         crudButtonPanel.add(updateButton);
         crudButtonPanel.add(deleteButton);
         crudButtonPanel.add(clearButton);
+        crudButtonPanel.add(exportButton);
         crudButtonPanel.add(backButton);
 
         JPanel formAndCrudPanel = new JPanel(new BorderLayout());
@@ -167,21 +192,50 @@ public class DokterView extends JDialog {
         System.out.println("DokterView UI initialized and listener added.");
     }
 
-    public String getIdDokterField() { return idDokterField.getText(); }
-    public String getNamaField() { return namaField.getText(); }
-    public String getSpesialisasiField() { return spesialisasiField.getText(); }
-    public String getTeleponField() { return teleponField.getText(); }
+    public String getIdDokterField() {
+        return idDokterField.getText();
+    }
 
-    public void addAddButtonListener(ActionListener listener) { addButton.addActionListener(listener); }
-    public void addUpdateButtonListener(ActionListener listener) { updateButton.addActionListener(listener); }
-    public void addDeleteButtonListener(ActionListener listener) { deleteButton.addActionListener(listener); }
-    public void addBackButtonListener(ActionListener listener) { backButton.addActionListener(listener); }
-    public void addClearButtonListener(ActionListener listener) { clearButton.addActionListener(listener); }
+    public String getNamaField() {
+        return namaField.getText();
+    }
+
+    public String getSpesialisasiField() {
+        return spesialisasiField.getText();
+    }
+
+    public String getTeleponField() {
+        return teleponField.getText();
+    }
+
+    public void addAddButtonListener(ActionListener listener) {
+        addButton.addActionListener(listener);
+    }
+
+    public void addUpdateButtonListener(ActionListener listener) {
+        updateButton.addActionListener(listener);
+    }
+
+    public void addDeleteButtonListener(ActionListener listener) {
+        deleteButton.addActionListener(listener);
+    }
+
+    public void addBackButtonListener(ActionListener listener) {
+        backButton.addActionListener(listener);
+    }
+
+    public void addExportButtonListener(ActionListener listener) {
+        exportButton.addActionListener(listener);
+    }
+
+    public void addClearButtonListener(ActionListener listener) {
+        clearButton.addActionListener(listener);
+    }
 
     public String getSearchKeyword() {
         return searchField.getText().trim();
     }
-    
+
     public JTextField getSearchField() {
         return searchField;
     }
@@ -194,8 +248,13 @@ public class DokterView extends JDialog {
         resetSearchButton.addActionListener(listener);
     }
 
-    public JTable getDokterTable() { return dokterTable; }
-    public DefaultTableModel getTableModel() { return tableModel; }
+    public JTable getDokterTable() {
+        return dokterTable;
+    }
+
+    public DefaultTableModel getTableModel() {
+        return this.tableModel;
+    }
 
     public void clearForm() {
         idDokterField.setText("");

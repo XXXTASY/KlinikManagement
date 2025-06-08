@@ -20,7 +20,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Properties;
-
 /*
  *
  * @author XXXTASY
@@ -41,6 +40,7 @@ public class PasienView extends JDialog {
     private JButton updateButton;
     private JButton deleteButton;
     private JButton backButton;
+    private JButton exportButton;
     private JButton clearButton;
     private JTextField searchField;
     private JButton searchButton;
@@ -138,12 +138,14 @@ public class PasienView extends JDialog {
         updateButton = new JButton("Perbarui");
         deleteButton = new JButton("Hapus");
         clearButton = new JButton("Clear Form");
+        exportButton = new JButton("Ekspor ke CSV");
         backButton = new JButton("Kembali ke Menu Utama");
 
         crudButtonPanel.add(addButton);
         crudButtonPanel.add(updateButton);
         crudButtonPanel.add(deleteButton);
         crudButtonPanel.add(clearButton);
+        crudButtonPanel.add(exportButton);
         crudButtonPanel.add(backButton);
 
         JPanel formAndCrudPanel = new JPanel(new BorderLayout());
@@ -279,6 +281,10 @@ public class PasienView extends JDialog {
     public void addClearButtonListener(ActionListener listener) {
         clearButton.addActionListener(listener);
     }
+    
+    public void addExportButtonListener(ActionListener listener) {
+        exportButton.addActionListener(listener);
+    }
 
     public String getSearchKeyword() {
         return searchField.getText().trim();
@@ -301,7 +307,7 @@ public class PasienView extends JDialog {
     }
 
     public DefaultTableModel getTableModel() {
-        return tableModel;
+        return this.tableModel;
     }
 
     public void clearForm() {

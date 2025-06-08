@@ -12,6 +12,11 @@ import javax.swing.*;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import javax.swing.table.DefaultTableModel;
 /**
  *
  * @author XXXTASY
@@ -32,9 +37,64 @@ public class ObatController {
         view.addUpdateButtonListener(e -> handleUpdateObat());
         view.addDeleteButtonListener(e -> handleDeleteObat());
         view.addClearButtonListener(e -> view.clearForm());
+        view.addExportButtonListener(e -> handleExportObatToCSV());
         view.addBackButtonListener(e -> view.dispose());
         view.addSearchButtonListener(e -> handleSearchObat());
         view.addResetSearchButtonListener(e -> handleResetSearchObat());
+    }
+    
+    private void handleExportObatToCSV() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Simpan Data Obat sebagai CSV");
+        fileChooser.setSelectedFile(new File("data_obat.csv"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files (*.csv)", "csv"));
+
+        int userSelection = fileChooser.showSaveDialog(view);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            
+            final File fileToSave;
+            if (!selectedFile.getAbsolutePath().endsWith(".csv")) {
+                fileToSave = new File(selectedFile.getAbsolutePath() + ".csv");
+            } else {
+                fileToSave = selectedFile;
+            }
+
+            new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    try (FileWriter writer = new FileWriter(fileToSave)) {
+                        DefaultTableModel tableModel = view.getTableModel();
+                        for (int i = 0; i < tableModel.getColumnCount(); i++) {
+                            writer.append(tableModel.getColumnName(i)).append(i == tableModel.getColumnCount() - 1 ? "" : ",");
+                        }
+                        writer.append('\n');
+
+                        for (int row = 0; row < tableModel.getRowCount(); row++) {
+                            for (int col = 0; col < tableModel.getColumnCount(); col++) {
+                                Object obj = tableModel.getValueAt(row, col);
+                                String value = (obj == null) ? "" : obj.toString();
+                                writer.append('"').append(value.replace("\"", "\"\"")).append('"');
+                                if (col < tableModel.getColumnCount() - 1) writer.append(',');
+                            }
+                            writer.append('\n');
+                        }
+                    } catch (IOException e) {
+                        throw new IOException("Gagal menulis file: " + e.getMessage(), e);
+                    }
+                    return null;
+                }
+                @Override
+                protected void done() {
+                    try {
+                        get();
+                        view.showMessage("Data berhasil diekspor ke:\n" + fileToSave.getAbsolutePath(), "Ekspor Berhasil", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (Exception e) {
+                        view.showMessage("Terjadi kesalahan saat mengekspor data:\n" + e.getCause().getMessage(), "Error Ekspor", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }.execute();
+        }
     }
 
     private void loadAndDisplayObat() {
@@ -197,7 +257,7 @@ public class ObatController {
                     return false;
                 }
             }
-             @Override
+            @Override
             protected void done() {
                 try {
                     boolean success = get();

@@ -40,13 +40,12 @@ public class ObatView extends JDialog {
     private JButton deleteButton;
     private JButton clearButton;
     private JButton backButton;
-    
+    private JButton exportButton;
     private JTextField searchField;
     private JButton searchButton;
     private JButton resetSearchButton;
-    
-    private Obat selectedObat = null;
 
+    private Obat selectedObat = null;
 
     public ObatView(JFrame parentFrame) {
         super(parentFrame, "Manajemen Data Obat", true);
@@ -62,35 +61,65 @@ public class ObatView extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         int row = 0;
-        gbc.gridx = 0; gbc.gridy = row; formPanel.add(new JLabel("Kode Obat:"), gbc);
-        gbc.gridx = 1; kodeObatField = new JTextField(15); formPanel.add(kodeObatField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        formPanel.add(new JLabel("Kode Obat:"), gbc);
+        gbc.gridx = 1;
+        kodeObatField = new JTextField(15);
+        formPanel.add(kodeObatField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; formPanel.add(new JLabel("Nama Obat:"), gbc);
-        gbc.gridx = 1; namaObatField = new JTextField(15); formPanel.add(namaObatField, gbc);
-        row++;
-        
-        gbc.gridx = 0; gbc.gridy = row; formPanel.add(new JLabel("Produsen:"), gbc);
-        gbc.gridx = 1; produsenField = new JTextField(15); formPanel.add(produsenField, gbc);
-        row++;
-
-        gbc.gridx = 0; gbc.gridy = row; formPanel.add(new JLabel("Satuan:"), gbc);
-        gbc.gridx = 1; satuanField = new JTextField(15); formPanel.add(satuanField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        formPanel.add(new JLabel("Nama Obat:"), gbc);
+        gbc.gridx = 1;
+        namaObatField = new JTextField(15);
+        formPanel.add(namaObatField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; formPanel.add(new JLabel("Stok:"), gbc);
-        gbc.gridx = 1; stokField = new JTextField(15); formPanel.add(stokField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        formPanel.add(new JLabel("Produsen:"), gbc);
+        gbc.gridx = 1;
+        produsenField = new JTextField(15);
+        formPanel.add(produsenField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; formPanel.add(new JLabel("Harga Beli:"), gbc);
-        gbc.gridx = 1; hargaBeliField = new JTextField(15); formPanel.add(hargaBeliField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        formPanel.add(new JLabel("Satuan:"), gbc);
+        gbc.gridx = 1;
+        satuanField = new JTextField(15);
+        formPanel.add(satuanField, gbc);
         row++;
 
-        gbc.gridx = 0; gbc.gridy = row; formPanel.add(new JLabel("Harga Jual:"), gbc);
-        gbc.gridx = 1; hargaJualField = new JTextField(15); formPanel.add(hargaJualField, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        formPanel.add(new JLabel("Stok:"), gbc);
+        gbc.gridx = 1;
+        stokField = new JTextField(15);
+        formPanel.add(stokField, gbc);
         row++;
-        
-        gbc.gridx = 0; gbc.gridy = row; formPanel.add(new JLabel("Tgl Kadaluarsa:"), gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        formPanel.add(new JLabel("Harga Beli:"), gbc);
+        gbc.gridx = 1;
+        hargaBeliField = new JTextField(15);
+        formPanel.add(hargaBeliField, gbc);
+        row++;
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        formPanel.add(new JLabel("Harga Jual:"), gbc);
+        gbc.gridx = 1;
+        hargaJualField = new JTextField(15);
+        formPanel.add(hargaJualField, gbc);
+        row++;
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        formPanel.add(new JLabel("Tgl Kadaluarsa:"), gbc);
         UtilDateModel dateModel = new UtilDateModel();
         Properties p = new Properties();
         p.put("text.today", "Today");
@@ -98,7 +127,8 @@ public class ObatView extends JDialog {
         p.put("text.year", "Year");
         JDatePanelImpl datePanel = new JDatePanelImpl(dateModel, p);
         tanggalKadaluarsaPicker = new JDatePickerImpl(datePanel, new DateLabelFormatter());
-        gbc.gridx = 1; formPanel.add(tanggalKadaluarsaPicker, gbc);
+        gbc.gridx = 1;
+        formPanel.add(tanggalKadaluarsaPicker, gbc);
         row++;
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -106,14 +136,16 @@ public class ObatView extends JDialog {
         updateButton = new JButton("Perbarui");
         deleteButton = new JButton("Hapus");
         clearButton = new JButton("Clear Form");
+        exportButton = new JButton("Ekspor ke CSV");
         backButton = new JButton("Kembali ke Menu Utama");
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(clearButton);
+        buttonPanel.add(exportButton);
         buttonPanel.add(backButton);
-        
+
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         searchPanel.setBorder(BorderFactory.createTitledBorder("Pencarian Obat"));
         searchPanel.add(new JLabel("Cari (Kode/Nama/Produsen):"));
@@ -123,7 +155,7 @@ public class ObatView extends JDialog {
         searchPanel.add(searchButton);
         resetSearchButton = new JButton("Reset");
         searchPanel.add(resetSearchButton);
-        
+
         JPanel topContainerPanel = new JPanel(new BorderLayout());
         JPanel formAndCrudPanel = new JPanel(new BorderLayout());
         formAndCrudPanel.add(formPanel, BorderLayout.CENTER);
@@ -131,7 +163,7 @@ public class ObatView extends JDialog {
 
         topContainerPanel.add(formAndCrudPanel, BorderLayout.CENTER);
         topContainerPanel.add(searchPanel, BorderLayout.SOUTH);
-        
+
         add(topContainerPanel, BorderLayout.NORTH);
 
         String[] columnNames = {"Kode Obat", "Nama Obat", "Produsen", "Satuan", "Stok", "Harga Beli", "Harga Jual", "Tgl Kadaluarsa"};
@@ -170,13 +202,34 @@ public class ObatView extends JDialog {
         add(new JScrollPane(obatTable), BorderLayout.CENTER);
     }
 
-    public String getKodeObat() { return kodeObatField.getText().trim(); }
-    public String getNamaObat() { return namaObatField.getText().trim(); }
-    public String getProdusen() { return produsenField.getText().trim(); }
-    public String getSatuan() { return satuanField.getText().trim(); }
-    public String getStok() { return stokField.getText().trim(); }
-    public String getHargaBeli() { return hargaBeliField.getText().trim(); }
-    public String getHargaJual() { return hargaJualField.getText().trim(); }
+    public String getKodeObat() {
+        return kodeObatField.getText().trim();
+    }
+
+    public String getNamaObat() {
+        return namaObatField.getText().trim();
+    }
+
+    public String getProdusen() {
+        return produsenField.getText().trim();
+    }
+
+    public String getSatuan() {
+        return satuanField.getText().trim();
+    }
+
+    public String getStok() {
+        return stokField.getText().trim();
+    }
+
+    public String getHargaBeli() {
+        return hargaBeliField.getText().trim();
+    }
+
+    public String getHargaJual() {
+        return hargaJualField.getText().trim();
+    }
+
     public LocalDate getTanggalKadaluarsa() {
         if (tanggalKadaluarsaPicker.getModel().isSelected()) {
             Date selectedDate = (Date) tanggalKadaluarsaPicker.getModel().getValue();
@@ -184,10 +237,12 @@ public class ObatView extends JDialog {
         }
         return null;
     }
-    
+
     public Obat getSelectedObatFromTable() {
         int selectedRow = obatTable.getSelectedRow();
-        if (selectedRow == -1) return null;
+        if (selectedRow == -1) {
+            return null;
+        }
 
         String kode = tableModel.getValueAt(selectedRow, 0).toString();
         String nama = tableModel.getValueAt(selectedRow, 1).toString();
@@ -198,22 +253,39 @@ public class ObatView extends JDialog {
         double hargaJual = Double.parseDouble(tableModel.getValueAt(selectedRow, 6).toString());
         LocalDate tglKadaluarsa = null;
         if (tableModel.getValueAt(selectedRow, 7) != null) {
-             tglKadaluarsa = LocalDate.parse(tableModel.getValueAt(selectedRow, 7).toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            tglKadaluarsa = LocalDate.parse(tableModel.getValueAt(selectedRow, 7).toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         }
         return new Obat(kode, nama, produsen, satuan, stok, hargaBeli, hargaJual, tglKadaluarsa);
     }
 
+    public void addAddButtonListener(ActionListener listener) {
+        addButton.addActionListener(listener);
+    }
 
-    public void addAddButtonListener(ActionListener listener) { addButton.addActionListener(listener); }
-    public void addUpdateButtonListener(ActionListener listener) { updateButton.addActionListener(listener); }
-    public void addDeleteButtonListener(ActionListener listener) { deleteButton.addActionListener(listener); }
-    public void addClearButtonListener(ActionListener listener) { clearButton.addActionListener(listener); }
-    public void addBackButtonListener(ActionListener listener) { backButton.addActionListener(listener); }
-    
+    public void addUpdateButtonListener(ActionListener listener) {
+        updateButton.addActionListener(listener);
+    }
+
+    public void addDeleteButtonListener(ActionListener listener) {
+        deleteButton.addActionListener(listener);
+    }
+
+    public void addClearButtonListener(ActionListener listener) {
+        clearButton.addActionListener(listener);
+    }
+
+    public void addExportButtonListener(ActionListener listener) {
+        exportButton.addActionListener(listener);
+    }
+
+    public void addBackButtonListener(ActionListener listener) {
+        backButton.addActionListener(listener);
+    }
+
     public String getSearchKeyword() {
         return searchField.getText().trim();
     }
-    
+
     public JTextField getSearchField() {
         return searchField;
     }
@@ -224,6 +296,10 @@ public class ObatView extends JDialog {
 
     public void addResetSearchButtonListener(ActionListener listener) {
         resetSearchButton.addActionListener(listener);
+    }
+    
+    public DefaultTableModel getTableModel() {
+        return this.tableModel;
     }
 
     public void clearForm() {

@@ -15,6 +15,11 @@ import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 /*
  *
  * @author XXXTASY
@@ -61,6 +66,7 @@ public class PasienController {
                 view.clearForm();
             }
         });
+        view.addExportButtonListener(e -> handleExportPasienToCSV());
         view.addSearchButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -73,6 +79,70 @@ public class PasienController {
                 handleResetSearchPasien();
             }
         });
+    }
+
+    private void handleExportPasienToCSV() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Simpan Data Pasien sebagai CSV");
+        fileChooser.setSelectedFile(new File("data_pasien.csv"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files (*.csv)", "csv"));
+
+        int userSelection = fileChooser.showSaveDialog(view);
+
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+
+            final File fileToSave;
+            if (!selectedFile.getAbsolutePath().endsWith(".csv")) {
+                fileToSave = new File(selectedFile.getAbsolutePath() + ".csv");
+            } else {
+                fileToSave = selectedFile;
+            }
+
+            new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    try (FileWriter writer = new FileWriter(fileToSave)) {
+                        DefaultTableModel tableModel = view.getTableModel();
+
+                        for (int i = 0; i < tableModel.getColumnCount(); i++) {
+                            writer.append(tableModel.getColumnName(i));
+                            if (i < tableModel.getColumnCount() - 1) {
+                                writer.append(',');
+                            }
+                        }
+                        writer.append('\n');
+
+                        for (int row = 0; row < tableModel.getRowCount(); row++) {
+                            for (int col = 0; col < tableModel.getColumnCount(); col++) {
+                                Object obj = tableModel.getValueAt(row, col);
+                                String value = (obj == null) ? "" : obj.toString();
+                                writer.append('"').append(value.replace("\"", "\"\"")).append('"');
+                                if (col < tableModel.getColumnCount() - 1) {
+                                    writer.append(',');
+                                }
+                            }
+                            writer.append('\n');
+                        }
+                        writer.flush();
+                    } catch (IOException e) {
+                        throw new IOException("Gagal menulis file: " + e.getMessage(), e);
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        get();
+                        view.showMessage("Data berhasil diekspor ke:\n" + fileToSave.getAbsolutePath(), "Ekspor Berhasil", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (Exception e) {
+                        view.showMessage("Terjadi kesalahan saat mengekspor data:\n" + e.getCause().getMessage(), "Error Ekspor", JOptionPane.ERROR_MESSAGE);
+                        e.printStackTrace();
+                    }
+                }
+            }.execute();
+        }
     }
 
     private void handleSearchPasien() {
@@ -132,7 +202,7 @@ public class PasienController {
         view.getSearchField().setText("");
         view.showMessage("Pencarian direset. Menampilkan semua data pasien.", "Reset", JOptionPane.INFORMATION_MESSAGE);
     }
-    
+
     private void handleAddPasien() {
         Pasien newPasien = view.getPasienFromForm();
         if (newPasien != null) {
@@ -140,8 +210,12 @@ public class PasienController {
                 String errorMessage = null;
                 @Override
                 protected Boolean doInBackground() throws Exception {
-                    try { return model.tambahPasien(newPasien); }
-                    catch (SQLException e) { errorMessage = e.getMessage(); throw e; }
+                    try {
+                        return model.tambahPasien(newPasien);
+                    } catch (SQLException e) {
+                        errorMessage = e.getMessage();
+                        throw e;
+                    }
                 }
                 @Override
                 protected void done() {
@@ -179,23 +253,29 @@ public class PasienController {
         }
 
         Pasien updatedPasienFromForm = view.getPasienFromForm();
-        if (updatedPasienFromForm == null) { return; }
+        if (updatedPasienFromForm == null) {
+            return;
+        }
 
         Pasien pasienToUpdateModel = new Pasien(
-            selectedPasienOriginal.getIdPasien(),
-            updatedPasienFromForm.getNama(),
-            updatedPasienFromForm.getTanggalLahir(),
-            updatedPasienFromForm.getJenisKelamin(),
-            updatedPasienFromForm.getAlamat(),
-            updatedPasienFromForm.getTelepon()
+                selectedPasienOriginal.getIdPasien(),
+                updatedPasienFromForm.getNama(),
+                updatedPasienFromForm.getTanggalLahir(),
+                updatedPasienFromForm.getJenisKelamin(),
+                updatedPasienFromForm.getAlamat(),
+                updatedPasienFromForm.getTelepon()
         );
 
         new SwingWorker<Boolean, Void>() {
             String errorMessage = null;
             @Override
             protected Boolean doInBackground() throws Exception {
-                try { return model.updatePasien(selectedPasienOriginal, pasienToUpdateModel); }
-                catch (SQLException e) { errorMessage = e.getMessage(); throw e; }
+                try {
+                    return model.updatePasien(selectedPasienOriginal, pasienToUpdateModel);
+                } catch (SQLException e) {
+                    errorMessage = e.getMessage();
+                    throw e;
+                }
             }
             @Override
             protected void done() {
@@ -248,8 +328,12 @@ public class PasienController {
                 String errorMessage = null;
                 @Override
                 protected Boolean doInBackground() throws Exception {
-                    try { return model.hapusPasien(selectedPasien); }
-                    catch (SQLException e) { errorMessage = e.getMessage(); throw e; }
+                    try {
+                        return model.hapusPasien(selectedPasien);
+                    } catch (SQLException e) {
+                        errorMessage = e.getMessage();
+                        throw e;
+                    }
                 }
                 @Override
                 protected void done() {
@@ -277,14 +361,13 @@ public class PasienController {
             @Override
             protected List<Pasien> doInBackground() throws Exception {
                 try {
-                     model.loadPasienFromDatabase();
-                     return model.getDaftarPasien();
+                    model.loadPasienFromDatabase();
+                    return model.getDaftarPasien();
                 } catch (Exception e) {
                     errorMessage = e.getMessage();
                     throw e;
                 }
             }
-
             @Override
             protected void done() {
                 try {

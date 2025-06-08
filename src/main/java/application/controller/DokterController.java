@@ -15,6 +15,10 @@ import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 /*
  *
  * @author XXXTASY
@@ -61,6 +65,7 @@ public class DokterController {
                 view.clearForm();
             }
         });
+        view.addExportButtonListener(e -> handleExportDokterToCSV());
         view.addSearchButtonListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -73,6 +78,63 @@ public class DokterController {
                 handleResetSearchDokter();
             }
         });
+    }
+
+    private void handleExportDokterToCSV() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Simpan Data Dokter sebagai CSV");
+        fileChooser.setSelectedFile(new File("data_dokter.csv"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("CSV Files (*.csv)", "csv"));
+
+        int userSelection = fileChooser.showSaveDialog(view);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+
+            final File fileToSave;
+            if (!selectedFile.getAbsolutePath().endsWith(".csv")) {
+                fileToSave = new File(selectedFile.getAbsolutePath() + ".csv");
+            } else {
+                fileToSave = selectedFile;
+            }
+
+            new SwingWorker<Void, Void>() {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    try (FileWriter writer = new FileWriter(fileToSave)) {
+                        DefaultTableModel tableModel = view.getTableModel();
+                        for (int i = 0; i < tableModel.getColumnCount(); i++) {
+                            writer.append(tableModel.getColumnName(i)).append(i == tableModel.getColumnCount() - 1 ? "" : ",");
+                        }
+                        writer.append('\n');
+
+                        for (int row = 0; row < tableModel.getRowCount(); row++) {
+                            for (int col = 0; col < tableModel.getColumnCount(); col++) {
+                                Object obj = tableModel.getValueAt(row, col);
+                                String value = (obj == null) ? "" : obj.toString();
+                                writer.append('"').append(value.replace("\"", "\"\"")).append('"');
+                                if (col < tableModel.getColumnCount() - 1) {
+                                    writer.append(',');
+                                }
+                            }
+                            writer.append('\n');
+                        }
+                    } catch (IOException e) {
+                        throw new IOException("Gagal menulis file: " + e.getMessage(), e);
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void done() {
+                    try {
+                        get();
+                        view.showMessage("Data berhasil diekspor ke:\n" + fileToSave.getAbsolutePath(), "Ekspor Berhasil", JOptionPane.INFORMATION_MESSAGE);
+                    } catch (Exception e) {
+                        view.showMessage("Terjadi kesalahan saat mengekspor data:\n" + e.getCause().getMessage(), "Error Ekspor", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }.execute();
+        }
     }
 
     private void handleSearchDokter() {
@@ -140,8 +202,12 @@ public class DokterController {
                 String errorMessage = null;
                 @Override
                 protected Boolean doInBackground() throws Exception {
-                    try { return model.tambahDokter(newDokter); }
-                    catch (SQLException e) { errorMessage = e.getMessage(); throw e; }
+                    try {
+                        return model.tambahDokter(newDokter);
+                    } catch (SQLException e) {
+                        errorMessage = e.getMessage();
+                        throw e;
+                    }
                 }
                 @Override
                 protected void done() {
@@ -179,23 +245,29 @@ public class DokterController {
         }
 
         Dokter updatedDokterFromForm = view.getDokterFromForm();
-        if (updatedDokterFromForm == null) { return; }
+        if (updatedDokterFromForm == null) {
+            return;
+        }
 
         Dokter dokterToUpdateModel = new Dokter(
-            selectedDokterOriginal.getIdDokter(),
-            updatedDokterFromForm.getNama(),
-            updatedDokterFromForm.getSpesialisasi(),
-            updatedDokterFromForm.getTelepon(),
-            updatedDokterFromForm.getJamMulaiPraktik(),
-            updatedDokterFromForm.getJamSelesaiPraktik()
+                selectedDokterOriginal.getIdDokter(),
+                updatedDokterFromForm.getNama(),
+                updatedDokterFromForm.getSpesialisasi(),
+                updatedDokterFromForm.getTelepon(),
+                updatedDokterFromForm.getJamMulaiPraktik(),
+                updatedDokterFromForm.getJamSelesaiPraktik()
         );
 
         new SwingWorker<Boolean, Void>() {
             String errorMessage = null;
             @Override
             protected Boolean doInBackground() throws Exception {
-                try { return model.updateDokter(selectedDokterOriginal, dokterToUpdateModel); }
-                catch (SQLException e) { errorMessage = e.getMessage(); throw e; }
+                try {
+                    return model.updateDokter(selectedDokterOriginal, dokterToUpdateModel);
+                } catch (SQLException e) {
+                    errorMessage = e.getMessage();
+                    throw e;
+                }
             }
             @Override
             protected void done() {
@@ -248,8 +320,12 @@ public class DokterController {
                 String errorMessage = null;
                 @Override
                 protected Boolean doInBackground() throws Exception {
-                    try { return model.hapusDokter(selectedDokter); }
-                    catch (SQLException e) { errorMessage = e.getMessage(); throw e; }
+                    try {
+                        return model.hapusDokter(selectedDokter);
+                    } catch (SQLException e) {
+                        errorMessage = e.getMessage();
+                        throw e;
+                    }
                 }
                 @Override
                 protected void done() {
@@ -277,14 +353,13 @@ public class DokterController {
             @Override
             protected List<Dokter> doInBackground() throws Exception {
                 try {
-                     model.loadDokterFromDatabase();
-                     return model.getDaftarDokter();
+                    model.loadDokterFromDatabase();
+                    return model.getDaftarDokter();
                 } catch (Exception e) {
                     errorMessage = e.getMessage();
                     throw e;
                 }
             }
-
             @Override
             protected void done() {
                 try {
