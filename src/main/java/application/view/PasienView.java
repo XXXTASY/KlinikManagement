@@ -20,12 +20,12 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Properties;
+
 /*
  *
  * @author XXXTASY
  */
 public class PasienView extends JDialog {
-
     private JTable pasienTable;
     private DefaultTableModel tableModel;
     private JTextField idPasienField;
@@ -132,7 +132,7 @@ public class PasienView extends JDialog {
         teleponField = new JTextField(20);
         inputPanel.add(teleponField, gbc);
         row++;
-
+        
         JPanel crudButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         addButton = new JButton("Tambah");
         updateButton = new JButton("Perbarui");
@@ -140,7 +140,14 @@ public class PasienView extends JDialog {
         clearButton = new JButton("Clear Form");
         exportButton = new JButton("Ekspor ke CSV");
         backButton = new JButton("Kembali ke Menu Utama");
-
+        
+        setButtonIcon(addButton, "/icons/add.png", "Tambah");
+        setButtonIcon(updateButton, "/icons/edit.png", "Perbarui");
+        setButtonIcon(deleteButton, "/icons/delete.png", "Hapus");
+        setButtonIcon(clearButton, "/icons/clear.png", "Clear Form");
+        setButtonIcon(exportButton, "/icons/export.png", "Ekspor ke CSV");
+        setButtonIcon(backButton, "/icons/back.png", "Kembali ke Menu Utama");
+        
         crudButtonPanel.add(addButton);
         crudButtonPanel.add(updateButton);
         crudButtonPanel.add(deleteButton);
@@ -158,8 +165,10 @@ public class PasienView extends JDialog {
         searchField = new JTextField(25);
         searchPanel.add(searchField);
         searchButton = new JButton("Cari");
+        setButtonIcon(searchButton, "/icons/search.png", "Cari");
         searchPanel.add(searchButton);
         resetSearchButton = new JButton("Reset");
+        setButtonIcon(resetSearchButton, "/icons/reset.png", "Reset");
         searchPanel.add(resetSearchButton);
 
         topContainerPanel.add(formAndCrudPanel, BorderLayout.CENTER);
@@ -284,6 +293,19 @@ public class PasienView extends JDialog {
     
     public void addExportButtonListener(ActionListener listener) {
         exportButton.addActionListener(listener);
+    }
+    
+    private void setButtonIcon(JButton button, String iconPath, String tooltip) {
+        try {
+            ImageIcon originalIcon = new ImageIcon(getClass().getResource(iconPath));
+            Image originalImage = originalIcon.getImage();
+            Image resizedImage = originalImage.getScaledInstance(16, 16, Image.SCALE_SMOOTH);
+            button.setIcon(new ImageIcon(resizedImage));
+            button.setToolTipText(tooltip);
+        } catch (Exception e) {
+            System.err.println("Gagal memuat ikon: " + iconPath);
+            e.printStackTrace();
+        }
     }
 
     public String getSearchKeyword() {
