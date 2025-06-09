@@ -14,7 +14,6 @@ import javax.swing.*;
  * @author XXXTASY
  */
 public class Main {
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
