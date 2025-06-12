@@ -4,72 +4,129 @@
  */
 package application.view;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.border.Border;
 /**
  *
  * @author XXXTASY
  */
 public class MainMenuView extends JFrame {
-    private JButton managePasienButton;
-    private JButton manageDokterButton;
-    private JButton manageObatButton;
+    private JPanel managePasienButton;
+    private JPanel manageDokterButton;
+    private JPanel manageObatButton;
     private JButton logoutButton;
 
     public MainMenuView() {
         setTitle("Menu Utama Klinik");
-        setSize(400, 350);
+        setSize(600, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 0, 15, 0);
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.CENTER;
+        JPanel mainPanel = new JPanel(new BorderLayout(20, 20));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        add(mainPanel);
 
         JLabel titleLabel = new JLabel("Sistem Manajemen Klinik");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        panel.add(titleLabel, gbc);
+        mainPanel.add(titleLabel, BorderLayout.NORTH);
 
-        managePasienButton = new JButton("Manajemen Pasien");
-        managePasienButton.setPreferredSize(new Dimension(200, 40));
-        panel.add(managePasienButton, gbc);
+        JPanel menuGridPanel = new JPanel(new GridLayout(1, 3, 20, 20));
+        menuGridPanel.setOpaque(false);
 
-        manageDokterButton = new JButton("Manajemen Dokter");
-        manageDokterButton.setPreferredSize(new Dimension(200, 40));
-        panel.add(manageDokterButton, gbc);
-        
-        manageObatButton = new JButton("Manajemen Obat");
-        manageObatButton.setPreferredSize(new Dimension(200, 40));
-        panel.add(manageObatButton, gbc);
-        
+        managePasienButton = createMenuPanel("Manajemen Pasien", "/icons/patient.png");
+        manageDokterButton = createMenuPanel("Manajemen Dokter", "/icons/doctor.png");
+        manageObatButton = createMenuPanel("Manajemen Obat", "/icons/medicine.png");
+
+        menuGridPanel.add(managePasienButton);
+        menuGridPanel.add(manageDokterButton);
+        menuGridPanel.add(manageObatButton);
+
+        mainPanel.add(menuGridPanel, BorderLayout.CENTER);
+
+        JPanel logoutFlowPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
         logoutButton = new JButton("Logout");
-        logoutButton.setPreferredSize(new Dimension(200, 40));
-        gbc.insets = new Insets(25, 0, 0, 0);
-        panel.add(logoutButton, gbc);
+        try {
+            ImageIcon logoutIcon = new ImageIcon(getClass().getResource("/icons/logout.png"));
+            Image scaledImg = logoutIcon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            logoutButton.setIcon(new ImageIcon(scaledImg));
+        } catch (Exception e) {
+            System.err.println("Icon logout.png tidak ditemukan.");
+        }
+        
+        logoutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        logoutButton.setBackground(Color.WHITE);
 
-        add(panel);
+        logoutFlowPanel.add(logoutButton);
+        mainPanel.add(logoutFlowPanel, BorderLayout.SOUTH);
+    }
+    
+    private JPanel createMenuPanel(String text, String imagePath) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createLineBorder(new Color(210, 210, 210)));
+        panel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        JLabel iconLabel = new JLabel();
+        try {
+            ImageIcon icon = new ImageIcon(getClass().getResource(imagePath));
+            Image scaledImage = icon.getImage().getScaledInstance(84, 84, Image.SCALE_SMOOTH);
+            iconLabel.setIcon(new ImageIcon(scaledImage));
+        } catch (Exception e) {
+            iconLabel.setText("Icon not found");
+            System.err.println("Icon " + imagePath + " tidak ditemukan.");
+        }
+        iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JLabel textLabel = new JLabel(text);
+        textLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        textLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        textLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
+        panel.add(iconLabel, BorderLayout.CENTER);
+        panel.add(textLabel, BorderLayout.SOUTH);
+
+        Border defaultBorder = panel.getBorder();
+        Border hoverBorder = BorderFactory.createLineBorder(new Color(100, 100, 100), 1);
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                panel.setBorder(hoverBorder);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                panel.setBorder(defaultBorder);
+            }
+        });
+
+        return panel;
+    }
+
+    private void addPanelClickListener(JPanel panel, ActionListener listener) {
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                listener.actionPerformed(new ActionEvent(e.getSource(), ActionEvent.ACTION_PERFORMED, "clicked"));
+            }
+        });
     }
 
     public void addManagePasienListener(ActionListener listener) {
-        managePasienButton.addActionListener(listener);
+        addPanelClickListener(managePasienButton, listener);
     }
 
     public void addManageDokterListener(ActionListener listener) {
-        manageDokterButton.addActionListener(listener);
+        addPanelClickListener(manageDokterButton, listener);
     }
-    
+
     public void addManageObatListener(ActionListener listener) {
-        manageObatButton.addActionListener(listener);
+        addPanelClickListener(manageObatButton, listener);
     }
-    
+
     public void addLogoutListener(ActionListener listener) {
         logoutButton.addActionListener(listener);
     }
